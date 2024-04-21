@@ -422,18 +422,29 @@ func next_comb(_i uint32, bf *BF, cf []int) (int, int) {
 func nonBF(bf *BF, _cf []int) int {
 	cf := make([]int, len(_cf))
 	copy(cf, _cf)
-	for i := 0; i < len(cf); i++ {
-		if cf[i] < 0 {
-			cf[i] *= -1
-		}
-	}
-	// fmt.Println(cf)
+	// for i := 0; i < len(cf); i++ {
+	// 	if cf[i] < 0 {
+	// 		cf[i] *= -1
+	// 	}
+	// }
+	// // fmt.Println(cf)
 
-	sort.Ints(cf)
+	// sort.Ints(cf)
+
+	maxAbs := cf[0]
+	for i := 1; i < len(cf); i++ {
+	    if cf[i] < 0 {
+	        cf[i] *= -1
+	    }
+	    if cf[i] > maxAbs {
+	        maxAbs = cf[i]
+	    }
+	}
 
 	// fmt.Println("cf: ", cf[len(cf)-1])
-
-	return (1 << (bf.n - 1)) - (cf[len(cf)-1])/2
+	return (1 << (bf.n - 1)) - (maxAbs/2)
+	
+	// return (1 << (bf.n - 1)) - (cf[len(cf)-1])/2
 }
 
 ////Best Affine Approximations
