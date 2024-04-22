@@ -420,41 +420,42 @@ func next_comb(_i uint32, bf *BF, cf []int) (int, int) {
 }
 
 func nonBF(bf *BF, _cf []int) int {
-	cf := make([]int, len(_cf))
-	copy(cf, _cf)
-	// for i := 0; i < len(cf); i++ {
-	// 	if cf[i] < 0 {
-	// 		cf[i] *= -1
-	// 	}
-	// }
-	// // fmt.Println(cf)
-
-	// sort.Ints(cf)
-
-	maxAbs := cf[0]
-	for i := 1; i < len(cf); i++ {
-	    if cf[i] < 0 {
-	        cf[i] *= -1
-	    }
-	    if cf[i] > maxAbs {
-	        maxAbs = cf[i]
-	    }
+	maxAbs := 0
+	for _, val := range _cf {
+		absVal := val
+		if absVal < 0 {
+			absVal *= -1
+		}
+		if absVal > maxAbs {
+			maxAbs = absVal
+		}
 	}
 
-	// fmt.Println("cf: ", cf[len(cf)-1])
-	return (1 << (bf.n - 1)) - (maxAbs/2)
-	
-	// return (1 << (bf.n - 1)) - (cf[len(cf)-1])/2
+	return (1 << (bf.n - 1)) - (maxAbs / 2)
 }
 
 ////Best Affine Approximations
 func BAA(bf *BF, cf []int) {
+
+	maxAbs := 0
+	for _, val := range cf {
+		absVal := val
+		if absVal < 0 {
+			absVal *= -1
+		}
+		if absVal > maxAbs {
+			maxAbs = absVal
+		}
+	}
+
+	// fmt.Println(maxAbs)
+
 	fmt.Println("Наилучшее аффиное приближение: ")
 	for i := uint32(0); i < (1 << bf.n); i++ {
-		if cf[i] < 0 {
+		if cf[i] < 0 && maxAbs == cf[i]*(-1) {
 			fmt.Print("1")
 			print_anf_BAA(i, bf.n)
-		} else if cf[i] > 0 {
+		} else if cf[i] > 0 && maxAbs == cf[i] {
 			fmt.Print("0")
 			print_anf_BAA(i, bf.n)
 		}
