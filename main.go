@@ -507,11 +507,12 @@ func auto_cor(cf []int) []int {
 }
 
 //фиктивные переменные(dummy variables)
+
 func d_var(_bf *BF) {
 	bf := constr_Copy(_bf)
 	meb := Mebius(bf)
 
-	// print_BF1(meb)
+	// // print_BF1(meb)
 	var mask, tmp uint32 = 1, 0
 
 	for i := uint32(0); i < (1 << meb.n); i++ {
@@ -522,10 +523,7 @@ func d_var(_bf *BF) {
 		mask = mask << 1
 	}
 
-	if tmp == (1<<bf.n)-1 { //линейносchr
-		fmt.Println("Фиктивных перeменных нет!")
-		return
-	}
+	println(tmp)
 
 	mask = 1
 
@@ -536,17 +534,48 @@ func d_var(_bf *BF) {
 		}
 		mask = mask << 1
 	}
-	println()
-
-	// for i := uint32(0); i < meb.n; i++ {
-	// 	if tmp&mask == 0 {
-	// 		fmt.Println("x", i)
-	// 	}
-	// 	mask = mask << 1
-	// }
-
-	// println(tmp)
 }
+
+// func d_var(_bf *BF) {
+// 	bf := constr_Copy(_bf)
+// 	meb := Mebius(bf)
+
+// 	// print_BF1(meb)
+// 	var mask, tmp uint32 = 1, 0
+
+// 	for i := uint32(0); i < (1 << meb.n); i++ {
+// 		if meb.f[i/32]&mask != 0 {
+// 			tmp |= i
+// 			// println(mask)
+// 		}
+// 		mask = mask << 1
+// 	}
+
+// 	if tmp == (1<<bf.n)-1 { //линейносchr
+// 		fmt.Println("Фиктивных перeменных нет!")
+// 		return
+// 	}
+
+// 	mask = 1
+
+// 	for i := int(meb.n) - 1; i >= 0; i-- {
+// 		if tmp&mask == 0 {
+// 			// fmt.Sprintf("x %d", )
+// 			fmt.Print("x", i)
+// 		}
+// 		mask = mask << 1
+// 	}
+// 	println()
+
+// 	// for i := uint32(0); i < meb.n; i++ {
+// 	// 	if tmp&mask == 0 {
+// 	// 		fmt.Println("x", i)
+// 	// 	}
+// 	// 	mask = mask << 1
+// 	// }
+
+// 	// println(tmp)
+// }
 
 //Линейный переменные
 func lin_var(_bf *BF) {
