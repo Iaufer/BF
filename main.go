@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"sort"
+
+	// "sort"
 	"time"
 )
 
@@ -147,7 +148,7 @@ func Weight(bf *BF) uint32 {
 
 func Weight_int(a uint32) uint32 {
 	x := a
-	x = x - ((x >> 1) & 0x55555555) // ∧ 
+	x = x - ((x >> 1) & 0x55555555) // ∧
 	x = (x & 0x33333333) + ((x >> 2) & 0x33333333)
 	x = (x + (x >> 4)) & 0x0F0F0F0F
 	x = x + (x >> 8)
@@ -370,8 +371,8 @@ func WH_tr(bf *BF) []int {
 	return cf
 }
 
-//11000000 -
-//найти все Линейный функцииБ фиктивные
+// 11000000 -
+// найти все Линейный функцииБ фиктивные
 func (bf *BF) cor(cf []int) int {
 
 	for i := uint32(1); i < (1 << bf.n); i++ {
@@ -434,7 +435,7 @@ func nonBF(bf *BF, _cf []int) int {
 	return (1 << (bf.n - 1)) - (maxAbs / 2)
 }
 
-////Best Affine Approximations
+// //Best Affine Approximations
 func BAA(bf *BF, cf []int) {
 
 	maxAbs := 0
@@ -473,13 +474,12 @@ func print_anf_BAA(_i, n uint32) {
 	fmt.Println()
 }
 
-//∆f (x)
+// ∆f (x)
 func auto_cor(cf []int) []int {
 	_cf := make([]int, len(cf))
 	for i := 0; i < len(cf); i++ {
 		_cf[i] = cf[i] * cf[i]
 	}
-
 
 	step := 1
 
@@ -495,7 +495,6 @@ func auto_cor(cf []int) []int {
 		step *= 2
 	}
 
-	fmt.Println(_cf)
 
 	d := uint32(math.Log2(float64(len(_cf)) + 1))
 
@@ -506,8 +505,7 @@ func auto_cor(cf []int) []int {
 	return _cf
 }
 
-//фиктивные переменные(dummy variables)
-
+// фиктивные переменные(dummy variables)
 func d_var(_bf *BF) {
 	bf := constr_Copy(_bf)
 	meb := Mebius(bf)
@@ -536,48 +534,7 @@ func d_var(_bf *BF) {
 	}
 }
 
-// func d_var(_bf *BF) {
-// 	bf := constr_Copy(_bf)
-// 	meb := Mebius(bf)
-
-// 	// print_BF1(meb)
-// 	var mask, tmp uint32 = 1, 0
-
-// 	for i := uint32(0); i < (1 << meb.n); i++ {
-// 		if meb.f[i/32]&mask != 0 {
-// 			tmp |= i
-// 			// println(mask)
-// 		}
-// 		mask = mask << 1
-// 	}
-
-// 	if tmp == (1<<bf.n)-1 { //линейносchr
-// 		fmt.Println("Фиктивных перeменных нет!")
-// 		return
-// 	}
-
-// 	mask = 1
-
-// 	for i := int(meb.n) - 1; i >= 0; i-- {
-// 		if tmp&mask == 0 {
-// 			// fmt.Sprintf("x %d", )
-// 			fmt.Print("x", i)
-// 		}
-// 		mask = mask << 1
-// 	}
-// 	println()
-
-// 	// for i := uint32(0); i < meb.n; i++ {
-// 	// 	if tmp&mask == 0 {
-// 	// 		fmt.Println("x", i)
-// 	// 	}
-// 	// 	mask = mask << 1
-// 	// }
-
-// 	// println(tmp)
-// }
-
-//Линейный переменные
+// Линейный переменные
 func lin_var(_bf *BF) {
 	bf := constr_Copy(_bf)
 	meb := Mebius(bf)
@@ -625,32 +582,65 @@ func lin_var(_bf *BF) {
 		mask = mask << 1
 	}
 	println()
+}
 
+func maxAbs(a []int)(int){
+	maxAbs := 0
+	for _, val := range a {
+		absVal := val
+		if absVal < 0 {
+			absVal *= -1
+		}
+		if absVal > maxAbs {
+			maxAbs = absVal
+		}
+	}
+	return maxAbs
+}
+
+func p_non(n uint32, a_cor []int)(int){
+	return (1 << (n-2)) - (maxAbs(a_cor)/4)
 }
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	a := "11111111"
+	a := "0001"
 	bf := BF_constructorch(a)
+
+
+	auto_cor := auto_cor(WH_tr(bf))
+	fmt.Println("Преобразование Уолша-Адамара: ", WH_tr(bf))
+
+	fmt.Println("Автокорреляция: ", auto_cor)
+	p_non := p_non(bf.n, auto_cor)
+
+	fmt.Println("Совершенная нелинейность: ", p_non)
+
+	// meb := Mebius(bf)
+	// print_BF1(meb)
+	// // ANF_print(meb)
+
+	// d_var(bf)
+
 	// bf := BF_constructor(7, 2)
 	// //3
-	wh_tr := WH_tr(bf)
-	fmt.Println("Преобразование Уолша – Адамара: ", wh_tr)
-	meb := Mebius(bf)
-	fmt.Println("Mebius:")
-	print_BF1(meb)
+	// wh_tr := WH_tr(bf)
+	// fmt.Println("Преобразование Уолша – Адамара: ", wh_tr)
+	// meb := Mebius(bf)
+	// fmt.Println("Mebius:")
+	// print_BF1(meb)
 
-	cor := bf.cor(WH_tr(bf))
-	fmt.Println("Максимальный порядок корреляционной иммунности функции: ", cor)
+	// cor := bf.cor(WH_tr(bf))
+	// fmt.Println("Максимальный порядок корреляционной иммунности функции: ", cor)
 
-	// // //4
-	nonbf := nonBF(bf, wh_tr)
-	fmt.Println("Нелинейность функции: ", nonbf)
+	// // // //4
+	// nonbf := nonBF(bf, wh_tr)
+	// fmt.Println("Нелинейность функции: ", nonbf)
 
-	BAA(bf, wh_tr) //NAP
+	// BAA(bf, wh_tr) //NAP
 
-	fmt.Println("Фиктивные переменные: ")
-	d_var(bf)
+	// fmt.Println("Фиктивные переменные: ")
+	// d_var(bf)
 
 	// fmt.Println("Линейныe переменные: ")
 	// lin_var(bf)
