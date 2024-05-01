@@ -598,8 +598,8 @@ func maxAbs(a []int)(int){
 	return maxAbs
 }
 
-func p_non(n uint32, a_cor []int)(int){
-	return (1 << (n-2)) - (maxAbs(a_cor)/4)
+func p_non(a_cor []int)(int){
+	return (1 << (int(math.Log2(float64(len(a_cor))))-2)) - (maxAbs(a_cor)/4)
 }
 
 func main() {
@@ -612,7 +612,7 @@ func main() {
 	fmt.Println("Преобразование Уолша-Адамара: ", WH_tr(bf))
 
 	fmt.Println("Автокорреляция: ", auto_cor)
-	p_non := p_non(bf.n, auto_cor)
+	p_non := p_non(auto_cor)
 
 	fmt.Println("Совершенная нелинейность: ", p_non)
 
