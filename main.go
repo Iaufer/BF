@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-
-	// "sort"
 	"time"
 )
 
@@ -225,7 +223,7 @@ func ANF_print(bf *BF) {
 		print("1")
 		f = 0
 	} else {
-		print("0")
+		print("0 + ")
 		f = 1
 	}
 	g := bf.f[0]
@@ -243,24 +241,7 @@ func ANF_print(bf *BF) {
 		ch = g
 		_mask1 = 1
 
-		for j := 0; j < int(bf.n); j++ {
-			if g&mask != 0 {
-				if i&_mask1 != 0 {
-					if f == 0 {
-						print(" + ")
-						f = 1
-					}
-					if f == 1 {
-						print("x", j)
-					}
-				}
-			}
-			_mask1 = _mask1 << 1
-		}
-
-		// j := int(bf.n) - 1
-
-		// for j >= 0 {
+		// for j := 0; j < int(bf.n); j++ {
 		// 	if g&mask != 0 {
 		// 		if i&_mask1 != 0 {
 		// 			if f == 0 {
@@ -272,9 +253,26 @@ func ANF_print(bf *BF) {
 		// 			}
 		// 		}
 		// 	}
-		// 	j--
 		// 	_mask1 = _mask1 << 1
 		// }
+
+		j := int(bf.n) - 1
+
+		for j >= 0 {
+			if g&mask != 0 {
+				if i&_mask1 != 0 {
+					if f == 0 {
+						print(" + ")
+						f = 1
+					}
+					if f == 1 {
+						print("x", j)
+					}
+				}
+			}
+			j--
+			_mask1 = _mask1 << 1
+		}
 		f = 0
 		mask = mask << 1
 	}
@@ -484,7 +482,7 @@ func auto_cor(cf []int) []int {
 	step := 1
 
 	for step < len(_cf) {
-		for i := 0; i < len(_cf); i += step * 2 {
+		for i := 0; i < len(_cf); i += step << 1 {
 			for j := i; j < i+step; j++ {
 				a := _cf[j]
 				b := _cf[j+step]
@@ -492,23 +490,33 @@ func auto_cor(cf []int) []int {
 				_cf[j+step] = a - b
 			}
 		}
-		step *= 2
+		step = step << 1
 	}
 
+	n := 0
+	x := len(_cf)
+	for x > 1 {
+		n++
+		x >>= 1
+	}
 
-	d := uint32(math.Log2(float64(len(_cf)) + 1))
+	// d := uint32(math.Log2(float64(len(_cf)) + 1))
+
+	// fmt.Println(n, d)
 
 	for i := 0; i < len(_cf); i++ {
-		_cf[i] = _cf[i] / (1 << d)
+		_cf[i] >>= n
+		// _cf[i] = _cf[i] / (1 << n)
 	}
 
 	return _cf
 }
 
-// фиктивные переменные(dummy variables)
+//фиктивные переменные(dummy variables)
+
 func d_var(_bf *BF) {
-	bf := constr_Copy(_bf)
-	meb := Mebius(bf)
+	// bf := constr_Copy(_bf)
+	meb := Mebius(_bf)
 
 	// // print_BF1(meb)
 	var mask, tmp uint32 = 1, 0
@@ -521,59 +529,47 @@ func d_var(_bf *BF) {
 		mask = mask << 1
 	}
 
-	println(tmp)
+	// println(tmp)
 
 	mask = 1
-
 	for i := int(meb.n) - 1; i >= 0; i-- {
 		if tmp&mask == 0 {
 			// fmt.Sprintf("x %d", )
 			fmt.Print("x", i)
+			println()
 		}
 		mask = mask << 1
 	}
+
+	println()
+
 }
 
 // Линейный переменные
 func lin_var(_bf *BF) {
-	bf := constr_Copy(_bf)
-	meb := Mebius(bf)
+	// bf := constr_Copy(_bf)
+	meb := Mebius(_bf)
 
 	// print_BF1(meb)
-	var mask, tmp uint32 = 1, 0
+	var mask, tmp, _tmp uint32 = 1, 0, 0
 
 	for i := uint32(0); i < (1 << meb.n); i++ {
 		if meb.f[i/32]&(mask) != 0 && Weight_int(i) == 1 {
 			tmp |= i
 		}
-		mask = mask << 1 //(2<<i / вместо маски
-	}
-
-	mask = 1
-
-	_tmp := uint32(0)
-
-	for i := uint32(0); i < (1 << meb.n); i++ {
 		if meb.f[i/32]&(mask) != 0 && Weight_int(i) != 1 {
 			_tmp |= i
 		}
 		mask = mask << 1 //(2<<i / вместо маски
 	}
+
 	mask = 1
 
-	for i := uint32(0); i < meb.n; i++ {
-		_tmp ^= mask
-		mask <<= 1
-	}
+	mask = 1
+	_tmp = ^_tmp
 
 	tmp = tmp & _tmp
 	mask = 1
-
-	// println(tmp)
-	// if tmp == 0 {
-	// 	fmt.Println("Все переменные нелинейны!")
-	// 	return
-	// }
 
 	for i := int(meb.n) - 1; i >= 0; i-- {
 		if tmp&mask != 0 {
@@ -582,12 +578,13 @@ func lin_var(_bf *BF) {
 		mask = mask << 1
 	}
 	println()
+
 }
 
-func maxAbs(a []int)(int){
+func maxAbs(a []int) int {
 	maxAbs := 0
-	for _, val := range a {
-		absVal := val
+	for i := 1; i < len(a); i++ {
+		absVal := a[i]
 		if absVal < 0 {
 			absVal *= -1
 		}
@@ -595,18 +592,35 @@ func maxAbs(a []int)(int){
 			maxAbs = absVal
 		}
 	}
+	// for i, val := range a {
+	// 	if i == 0 {
+	// 		continue
+	// 	}
+	// 	absVal := val
+	// 	if absVal < 0 {
+	// 		absVal *= -1
+	// 	}
+	// 	if absVal > maxAbs {
+	// 		maxAbs = absVal
+	// 	}
+	// }
 	return maxAbs
 }
 
-func p_non(a_cor []int)(int){
-	return (1 << (int(math.Log2(float64(len(a_cor))))-2)) - (maxAbs(a_cor)/4)
+func p_non(a_cor []int) int {
+	n := 0
+	x := len(a_cor)
+	for x > 1 {
+		n++
+		x >>= 1
+	}
+	return (1 << (n - 2)) - (maxAbs(a_cor) >> 2)
 }
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	a := "0001"
+	a := "11000010"
 	bf := BF_constructorch(a)
-
 
 	auto_cor := auto_cor(WH_tr(bf))
 	fmt.Println("Преобразование Уолша-Адамара: ", WH_tr(bf))
@@ -615,34 +629,4 @@ func main() {
 	p_non := p_non(auto_cor)
 
 	fmt.Println("Совершенная нелинейность: ", p_non)
-
-	// meb := Mebius(bf)
-	// print_BF1(meb)
-	// // ANF_print(meb)
-
-	// d_var(bf)
-
-	// bf := BF_constructor(7, 2)
-	// //3
-	// wh_tr := WH_tr(bf)
-	// fmt.Println("Преобразование Уолша – Адамара: ", wh_tr)
-	// meb := Mebius(bf)
-	// fmt.Println("Mebius:")
-	// print_BF1(meb)
-
-	// cor := bf.cor(WH_tr(bf))
-	// fmt.Println("Максимальный порядок корреляционной иммунности функции: ", cor)
-
-	// // // //4
-	// nonbf := nonBF(bf, wh_tr)
-	// fmt.Println("Нелинейность функции: ", nonbf)
-
-	// BAA(bf, wh_tr) //NAP
-
-	// fmt.Println("Фиктивные переменные: ")
-	// d_var(bf)
-
-	// fmt.Println("Линейныe переменные: ")
-	// lin_var(bf)
-
 }
